@@ -1,34 +1,11 @@
 import { useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
-import { useTodoStore } from '../store/useTodoStore';
+import { useCalendar } from '../hooks/useCalendar';
 
 export const Calendar = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const todos = useTodoStore((state) => state.todos);
-  const selectedDate = useTodoStore((state) => state.selectedDate);
-  const setSelectedDate = useTodoStore((state) => state.setSelectedDate);
-
-  // 날짜 포맷팅
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return `${year}년 ${month}월 ${day}일`;
-  };
-
-  // 각 날짜별 할 일 개수를 계산
-  const markedDates = todos.reduce((acc, todo) => {
-    const date = todo.date;
-    if (!acc[date]) {
-      acc[date] = {
-        marked: true,
-        dotColor: todo.completed ? '#4CAF50' : '#FF5722',
-      };
-    }
-    return acc;
-  }, {} as { [key: string]: { marked: boolean; dotColor: string } });
+  const { selectedDate, setSelectedDate, formatDate, markedDates } = useCalendar();
 
   return (
     <View style={styles.container}>
