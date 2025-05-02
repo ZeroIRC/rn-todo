@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
 import { useTodoStore } from '../store/useTodoStore';
 
 export const Calendar = () => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const todos = useTodoStore((state) => state.todos);
   const selectedDate = useTodoStore((state) => state.selectedDate);
   const setSelectedDate = useTodoStore((state) => state.setSelectedDate);
@@ -34,33 +34,47 @@ export const Calendar = () => {
     <View style={styles.container}>
       <TouchableOpacity
         style={styles.dateButton}
-        onPress={() => setIsExpanded(!isExpanded)}
+        onPress={() => setIsModalVisible(true)}
       >
         <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
       </TouchableOpacity>
-      {isExpanded && (
-        <View style={styles.calendarContainer}>
-          <RNCalendar
-            markedDates={{
-              ...markedDates,
-              [selectedDate]: {
-                ...markedDates[selectedDate],
-                selected: true,
-              },
-            }}
-            onDayPress={(day) => {
-              setSelectedDate(day.dateString);
-              setIsExpanded(false);
-            }}
-            theme={{
-              todayTextColor: '#2196F3',
-              selectedDayBackgroundColor: '#2196F3',
-              dotColor: '#FF5722',
-              arrowColor: '#2196F3',
-            }}
-          />
+      
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <RNCalendar
+              markedDates={{
+                ...markedDates,
+                [selectedDate]: {
+                  ...markedDates[selectedDate],
+                  selected: true,
+                },
+              }}
+              onDayPress={(day) => {
+                setSelectedDate(day.dateString);
+                setIsModalVisible(false);
+              }}
+              theme={{
+                todayTextColor: '#2196F3',
+                selectedDayBackgroundColor: '#2196F3',
+                dotColor: '#FF5722',
+                arrowColor: '#2196F3',
+              }}
+            />
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setIsModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>닫기</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      )}
+      </Modal>
     </View>
   );
 };
@@ -81,11 +95,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  calendarContainer: {
-    marginTop: 10,
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    width: '90%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  closeButton: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: '#2196F3',
     borderRadius: 8,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#ddd',
+  },
+  closeButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 }); 
