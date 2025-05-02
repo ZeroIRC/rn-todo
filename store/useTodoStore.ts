@@ -6,20 +6,25 @@ export interface Todo {
   id: string;
   text: string;
   completed: boolean;
+  date: string; // YYYY-MM-DD 형식
 }
 
 interface TodoStore {
   todos: Todo[];
-  addTodo: (text: string) => void;
+  selectedDate: string;
+  addTodo: (text: string, date: string) => void;
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
+  getTodosByDate: (date: string) => Todo[];
+  setSelectedDate: (date: string) => void;
 }
 
 export const useTodoStore = create<TodoStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       todos: [],
-      addTodo: (text: string) =>
+      selectedDate: new Date().toISOString().split('T')[0],
+      addTodo: (text: string, date: string) =>
         set((state) => ({
           todos: [
             ...state.todos,
@@ -27,6 +32,7 @@ export const useTodoStore = create<TodoStore>()(
               id: Date.now().toString(),
               text,
               completed: false,
+              date,
             },
           ],
         })),
@@ -40,6 +46,10 @@ export const useTodoStore = create<TodoStore>()(
         set((state) => ({
           todos: state.todos.filter((todo) => todo.id !== id),
         })),
+      getTodosByDate: (date: string) => {
+        return get().todos.filter((todo) => todo.date === date);
+      },
+      setSelectedDate: (date: string) => set({ selectedDate: date }),
     }),
     {
       name: 'todo-storage',

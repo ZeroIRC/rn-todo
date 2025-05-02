@@ -1,9 +1,13 @@
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTodoList } from '../hooks/useTodoList';
-import { Todo } from '../store/useTodoStore';
+import { Todo, useTodoStore } from '../store/useTodoStore';
 
 export const TodoList = () => {
-  const { todos, toggleTodo, deleteTodo } = useTodoList();
+  const selectedDate = useTodoStore((state) => state.selectedDate);
+  const todos = useTodoStore((state) => state.todos);
+  const toggleTodo = useTodoStore((state) => state.toggleTodo);
+  const deleteTodo = useTodoStore((state) => state.deleteTodo);
+
+  const filteredTodos = todos.filter((todo) => todo.date === selectedDate);
 
   const renderItem = ({ item: todo }: { item: Todo }) => (
     <View style={styles.todoItem}>
@@ -32,7 +36,7 @@ export const TodoList = () => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={todos}
+        data={filteredTodos}
         renderItem={renderItem}
         keyExtractor={(todo) => todo.id}
         contentContainerStyle={styles.listContent}
